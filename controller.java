@@ -69,3 +69,6 @@ EXPOSE 80
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
 
+   frontend docker run ...... docker run -d -p 3000:80 --name react-frontend react-frontend:1.0
+
+
