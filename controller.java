@@ -34,3 +34,38 @@ docker -v
  #docker push umatanna9/hello-java:1.0
  #docker login
 # docker run -d --name=web-baba -p 8000:80 umatanna9/hello-java:1.0
+
+
+
+
+   # ---------- Stage 1: Build ----------
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the Vite app
+RUN npm run build
+
+
+# ---------- Stage 2: Serve ----------
+FROM nginx:alpine
+
+# Remove default nginx static files
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose Nginx port
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
+
