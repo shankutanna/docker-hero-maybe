@@ -72,3 +72,123 @@ CMD ["nginx", "-g", "daemon off;"]
    frontend docker run ...... docker run -d -p 3000:80 --name react-frontend react-frontend:1.0
 
 
+   
+react + springboot + postgreSQL
+   
+frontend/Dockerfile (React + Nginx) 
+# Stage 1: Build React
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Nginx web server
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+# Optional: SPA fallback rule
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+backend/Dockerfile (Spring Boot + PostgreSQL)
+   
+# Build stage
+FROM maven:3.9.4-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+   
+
+docker-compose file
+version: "3.8"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: example
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - appnet
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appnet
+
+networks:
+  appnet:
+
+volumes:
+  postgres_data:
+
+
+
+SINGLE-CONTAINER DEPLOYMENT
+   # ================
+# Stage 1: Build React
+# ================
+FROM node:18-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ .
+RUN npm run build
+
+# ================
+# Stage 2: Build Spring Boot JAR
+# ================
+FROM maven:3.9.4-eclipse-temurin-17 AS backend-build
+WORKDIR /app/backend
+COPY backend/pom.xml .
+COPY backend/src ./src
+RUN mvn clean package -DskipTests
+
+# ================
+# Stage 3: Combine → Final Image
+# ================
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+# Backend
+COPY --from=backend-build /app/backend/target/*.jar app.jar
+
+# React static files copied into Spring Boot resources folder
+COPY --from=frontend-build /app/frontend/build ./public
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
