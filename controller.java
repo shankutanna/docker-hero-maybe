@@ -18,7 +18,7 @@ docker -v
    28  docker images
    29  docker rmi nginx:latest
    30  docker images
-   31  docker run -d --name=web-nginx -p 80:80 nginx:latest
+   31  docker run -d --name=web-nginx -p 80:80 nginx:latest.....for frontend the  default port is 3000:80
    32  docker ps
    33  docker exec it a4963ac42057 bin/bash
    34  docker exec -it a4963ac42057 bin/bash
