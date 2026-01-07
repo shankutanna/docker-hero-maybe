@@ -35,7 +35,7 @@ docker -v
  #docker login
 # docker run -d --name=web-baba -p 8000:80 umatanna9/hello-java:1.0
 
-
+-------------------------------------------------------------------------------------
 
 
    # ---------- Stage 1: Build ----------
@@ -69,9 +69,8 @@ EXPOSE 80
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
 
-   frontend docker run ...... docker run -d -p 3000:80 --name react-frontend react-frontend:1.0
-
-
+   frontend docker run ...... docker run -d -p 3000:80 --name react-frontend react-frontend:1.
+------------------------------------------------------------------------------------------------------------
    
 react + springboot + postgreSQL
    
@@ -108,7 +107,7 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
    
-
+---------------------------------------------------------------------------------------------------------------------
 docker-compose file
 version: "3.8"
 
@@ -157,8 +156,7 @@ networks:
 volumes:
   postgres_data:
 
-
-
+------------------------------------------------------------------------------------------------------------------------------------
 SINGLE-CONTAINER DEPLOYMENT
    # ================
 # Stage 1: Build React
