@@ -28,7 +28,7 @@ docker -v
    38  docker images
    39  docker ps
    40  docker rm -f a4963ac42057
- #docker rm -f $(docker ps - aq)
+ #docker rm -f $(docker ps -aq)
  #docker rmi -f $(docker images -aq)
  #docker tag ngnix:latest umatanna9/hello-java:1.0
  #docker push umatanna9/hello-java:1.0
