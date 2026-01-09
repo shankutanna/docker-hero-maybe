@@ -35,6 +35,22 @@ docker -v
  #docker login
 # docker run -d --name=web-baba -p 8000:80 umatanna9/hello-java:1.0
 
+# Stop all containers
+docker stop $(docker ps -aq)
+
+# Remove all containers
+docker rm $(docker ps -aq)
+
+# Remove all images
+docker rmi $(docker images -aq)
+
+# Remove unused volumes
+docker volume prune -f
+
+# Remove unused networks
+docker network prune -f
+   
+
 -------------------------------------------------------------------------------------
 
 
